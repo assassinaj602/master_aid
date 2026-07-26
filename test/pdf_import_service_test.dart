@@ -8,7 +8,7 @@ void main() {
   group('PdfImportService', () {
     test('extracts AcroForm data from PDF', () async {
       final pdfFile = File('test/fixtures/sample_character.pdf');
-      
+
       if (await pdfFile.exists()) {
         final fields = await PdfImportService.extractAcroFormData(pdfFile);
         expect(fields, isA<Map<String, String>>());
@@ -20,7 +20,7 @@ void main() {
 
     test('identifies WotC character sheet', () async {
       final pdfFile = File('test/fixtures/sample_character.pdf');
-      
+
       if (await pdfFile.exists()) {
         final isWotc = await PdfImportService.isWotcCharacterSheet(pdfFile);
         expect(isWotc, isA<bool>());

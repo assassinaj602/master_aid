@@ -87,15 +87,18 @@ class PdfCharacterData {
       speed: parseIntSafe('Speed'),
       maxHitPoints: parseIntSafe('HP'),
       hitDice: parseIntSafe('Hit Dice'),
-      spellcastingClass: getStringSafe('Spellcasting Class').isNotEmpty
-          ? getStringSafe('Spellcasting Class')
-          : null,
-      spellSaveDC: getStringSafe('Spell Save DC').isNotEmpty
-          ? int.tryParse(getStringSafe('Spell Save DC'))
-          : null,
-      spellAttackBonus: getStringSafe('Spell Attack Bonus').isNotEmpty
-          ? int.tryParse(getStringSafe('Spell Attack Bonus'))
-          : null,
+      spellcastingClass:
+          getStringSafe('Spellcasting Class').isNotEmpty
+              ? getStringSafe('Spellcasting Class')
+              : null,
+      spellSaveDC:
+          getStringSafe('Spell Save DC').isNotEmpty
+              ? int.tryParse(getStringSafe('Spell Save DC'))
+              : null,
+      spellAttackBonus:
+          getStringSafe('Spell Attack Bonus').isNotEmpty
+              ? int.tryParse(getStringSafe('Spell Attack Bonus'))
+              : null,
       spells: _extractSpells(fields),
     );
   }
