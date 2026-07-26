@@ -4,11 +4,7 @@ import 'package:master_aid/screens/pdf_import_screen.dart';
 
 void main() {
   testWidgets('PdfImportScreen renders without error', (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: PdfImportScreen(),
-      ),
-    );
+    await tester.pumpWidget(const MaterialApp(home: PdfImportScreen()));
 
     expect(find.text('Importa Personaggio da PDF'), findsOneWidget);
     expect(find.text('Seleziona PDF'), findsOneWidget);

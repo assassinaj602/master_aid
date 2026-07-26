@@ -43,7 +43,8 @@ class _PdfImportScreenState extends State<PdfImportScreen> {
       final isWotc = await PdfImportService.isWotcCharacterSheet(file);
       if (!isWotc) {
         setState(() {
-          _errorMessage = 'Il file selezionato non è una scheda personaggio WotC valida.';
+          _errorMessage =
+              'Il file selezionato non è una scheda personaggio WotC valida.';
           _isLoading = false;
         });
         return;
@@ -73,19 +74,20 @@ class _PdfImportScreenState extends State<PdfImportScreen> {
     if (!isValid) {
       final missing = CharacterImportMapper.getMissingFields(_parsedData!);
       setState(() {
-        _errorMessage = 'Dati incompleti. Campi mancanti: ${missing.join(", ")}';
+        _errorMessage =
+            'Dati incompleti. Campi mancanti: ${missing.join(", ")}';
       });
       return;
     }
 
     try {
       final pgBase = CharacterImportMapper.toPgBase(_parsedData!);
-      
+
       await SavedCharactersService.save(pgBase);
-      
+
       if (!mounted) return;
       Navigator.pop(context, pgBase);
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Personaggio importato con successo! ✅'),
@@ -141,7 +143,9 @@ class _PdfImportScreenState extends State<PdfImportScreen> {
           if (_selectedPdf != null) ...[
             ListTile(
               leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
-              title: Text(_selectedPdf!.path.split(Platform.pathSeparator).last),
+              title: Text(
+                _selectedPdf!.path.split(Platform.pathSeparator).last,
+              ),
               trailing: IconButton(
                 icon: const Icon(Icons.clear),
                 onPressed: () {
@@ -235,7 +239,10 @@ class _PdfImportScreenState extends State<PdfImportScreen> {
                       ? '✅ Tutti i dati necessari sono presenti!'
                       : '⚠️ Dati incompleti. Campi mancanti: ${missing.join(", ")}',
                   style: TextStyle(
-                    color: isValid ? Colors.green.shade700 : Colors.orange.shade700,
+                    color:
+                        isValid
+                            ? Colors.green.shade700
+                            : Colors.orange.shade700,
                   ),
                 ),
               ),
@@ -245,10 +252,7 @@ class _PdfImportScreenState extends State<PdfImportScreen> {
         const SizedBox(height: AppSpacing.md),
         const Text(
           'Anteprima Personaggio',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: AppSpacing.sm),
         _buildInfoRow('Nome', data.name),
@@ -270,9 +274,15 @@ class _PdfImportScreenState extends State<PdfImportScreen> {
           const Divider(),
           _buildInfoRow('Classe Incantesimi', data.spellcastingClass!),
           if (data.spellSaveDC != null)
-            _buildInfoRow('Tiro Salvezza Incantesimi', data.spellSaveDC!.toString()),
+            _buildInfoRow(
+              'Tiro Salvezza Incantesimi',
+              data.spellSaveDC!.toString(),
+            ),
           if (data.spellAttackBonus != null)
-            _buildInfoRow('Bonus Attacco Incantesimi', data.spellAttackBonus!.toString()),
+            _buildInfoRow(
+              'Bonus Attacco Incantesimi',
+              data.spellAttackBonus!.toString(),
+            ),
         ],
       ],
     );
