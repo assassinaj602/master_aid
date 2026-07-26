@@ -20,11 +20,7 @@ void main() {
         intelligence: 10,
         wisdom: 12,
         charisma: 11,
-        skills: {
-          'Athletics': 1,
-          'Perception': 1,
-          'Survival': 1,
-        },
+        skills: {'Athletics': 1, 'Perception': 1, 'Survival': 1},
         armorClass: 18,
         initiative: 2,
         speed: 30,
@@ -35,7 +31,7 @@ void main() {
 
     test('converts PdfCharacterData to PGBase', () {
       final pgBase = CharacterImportMapper.toPgBase(sampleData);
-      
+
       expect(pgBase.nome, 'Aragorn');
       expect(pgBase.classe, 'Fighter');
       expect(pgBase.livello, 5);
@@ -79,7 +75,7 @@ void main() {
         maxHitPoints: 0,
         hitDice: 0,
       );
-      
+
       final missing = CharacterImportMapper.getMissingFields(incompleteData);
       expect(missing, contains('Nome'));
       expect(missing, contains('Classe/Livello'));
