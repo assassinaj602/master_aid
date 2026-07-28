@@ -59,45 +59,57 @@ class PdfCharacterData {
 
   /// Creates a PdfCharacterData from raw AcroForm field values
   factory PdfCharacterData.fromFieldMap(Map<String, String> fields) {
-    int parseIntSafe(String key) {
-      final value = fields[key] ?? '0';
-      return int.tryParse(value) ?? 0;
+    // Helper that trims trailing spaces from keys (some WotC fields have them)
+    String getWotcField(String key) {
+      return fields[key] ?? fields[key.trimRight()] ?? '';
     }
 
-    String getStringSafe(String key) {
-      return fields[key] ?? '';
+    int parseWotcInt(String key) {
+      final raw = getWotcField(key);
+      return int.tryParse(raw.trim()) ?? 0;
     }
+
+    // Parse level from ClassLevel string e.g. "Wizard 5"
+    int parseLevel(String classLevel) {
+      final parts = classLevel.trim().split(' ');
+      if (parts.length >= 2) {
+        return int.tryParse(parts.last) ?? 1;
+      }
+      return 1;
+    }
+
+    final classLevelStr = getWotcField('ClassLevel');
 
     return PdfCharacterData(
-      name: getStringSafe('charactername'),
-      classLevel: getStringSafe('classlevel'),
-      race: getStringSafe('race'),
-      background: getStringSafe('background'),
-      playerName: getStringSafe('playername'),
-      level: parseIntSafe('level'),
-      strength: parseIntSafe('STR'),
-      dexterity: parseIntSafe('DEX'),
-      constitution: parseIntSafe('CON'),
-      intelligence: parseIntSafe('INT'),
-      wisdom: parseIntSafe('WIS'),
-      charisma: parseIntSafe('CHA'),
+      name: getWotcField('CharacterName'),
+      classLevel: classLevelStr,
+      race: getWotcField('Race ').trim(),
+      background: getWotcField('Background'),
+      playerName: getWotcField('PlayerName'),
+      level: parseLevel(classLevelStr),
+      strength: parseWotcInt('STR'),
+      dexterity: parseWotcInt('DEX'),
+      constitution: parseWotcInt('CON'),
+      intelligence: parseWotcInt('INT'),
+      wisdom: parseWotcInt('WIS'),
+      charisma: parseWotcInt('CHA'),
       skills: _extractSkills(fields),
-      armorClass: parseIntSafe('AC'),
-      initiative: parseIntSafe('Initiative'),
-      speed: parseIntSafe('Speed'),
-      maxHitPoints: parseIntSafe('HP'),
-      hitDice: parseIntSafe('Hit Dice'),
+      armorClass: parseWotcInt('AC'),
+      initiative: parseWotcInt('Initiative'),
+      speed: parseWotcInt('Speed'),
+      maxHitPoints: parseWotcInt('HPMax'),
+      hitDice: parseWotcInt('HD'),
       spellcastingClass:
-          getStringSafe('Spellcasting Class').isNotEmpty
-              ? getStringSafe('Spellcasting Class')
+          getWotcField('Spellcasting Class 2').isNotEmpty
+              ? getWotcField('Spellcasting Class 2')
               : null,
       spellSaveDC:
-          getStringSafe('Spell Save DC').isNotEmpty
-              ? int.tryParse(getStringSafe('Spell Save DC'))
+          getWotcField('SpellSaveDC  2').isNotEmpty
+              ? int.tryParse(getWotcField('SpellSaveDC  2').trim())
               : null,
       spellAttackBonus:
-          getStringSafe('Spell Attack Bonus').isNotEmpty
-              ? int.tryParse(getStringSafe('Spell Attack Bonus'))
+          getWotcField('SpellAtkBonus 2').isNotEmpty
+              ? int.tryParse(getWotcField('SpellAtkBonus 2').trim())
               : null,
       spells: _extractSpells(fields),
     );
@@ -105,31 +117,33 @@ class PdfCharacterData {
 
   static Map<String, int> _extractSkills(Map<String, String> fields) {
     final Map<String, int> skillMap = {};
-    const List<String> skillNames = [
-      'Acrobatics',
-      'Animal Handling',
-      'Arcana',
-      'Athletics',
-      'Deception',
-      'History',
-      'Insight',
-      'Intimidation',
-      'Investigation',
-      'Medicine',
-      'Nature',
-      'Perception',
-      'Performance',
-      'Persuasion',
-      'Religion',
-      'Sleight of Hand',
-      'Stealth',
-      'Survival',
-    ];
 
-    for (String skill in skillNames) {
-      final key = skill.replaceAll(' ', '');
-      final value = fields[key] ?? '0';
-      skillMap[skill] = int.tryParse(value) ?? 0;
+    // Real WotC PDF field names (verified against official fillable sheet)
+    // Some have trailing spaces in the actual PDF field names
+    final Map<String, String> skillFieldMap = {
+      'Acrobatics': 'Acrobatics',
+      'Animal Handling': 'Animal', // special case
+      'Arcana': 'Arcana',
+      'Athletics': 'Athletics',
+      'Deception': 'Deception ', // trailing space
+      'History': 'History ', // trailing space
+      'Insight': 'Insight',
+      'Intimidation': 'Intimidation',
+      'Investigation': 'Investigation ', // trailing space
+      'Medicine': 'Medicine',
+      'Nature': 'Nature',
+      'Perception': 'Perception ', // trailing space
+      'Performance': 'Performance',
+      'Persuasion': 'Persuasion',
+      'Religion': 'Religion',
+      'Sleight of Hand': 'SleightofHand',
+      'Stealth': 'Stealth ', // trailing space
+      'Survival': 'Survival',
+    };
+
+    for (final entry in skillFieldMap.entries) {
+      final raw = fields[entry.value] ?? '';
+      skillMap[entry.key] = int.tryParse(raw.trim()) ?? 0;
     }
 
     return skillMap;
@@ -137,10 +151,10 @@ class PdfCharacterData {
 
   static List<String> _extractSpells(Map<String, String> fields) {
     final List<String> spells = [];
-    for (int i = 1; i <= 50; i++) {
-      final spell = fields['Spell$i'] ?? '';
-      if (spell.isNotEmpty) {
-        spells.add(spell);
+    // WotC PDFs use 'Spells XXXX' non-sequential IDs — extract all matching keys
+    for (final entry in fields.entries) {
+      if (entry.key.startsWith('Spells ') && entry.value.isNotEmpty) {
+        spells.add(entry.value);
       }
     }
     return spells;

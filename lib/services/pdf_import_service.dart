@@ -57,8 +57,8 @@ class PdfImportService {
   static Future<bool> isWotcCharacterSheet(File pdfFile) async {
     try {
       final Map<String, String> fields = await extractAcroFormData(pdfFile);
-      // Check for WotC-specific field names
-      final wotcFields = ['charactername', 'classlevel', 'playername', 'race'];
+      // Check for WotC-specific field names (verified against official fillable sheet)
+      final wotcFields = ['CharacterName', 'ClassLevel', 'PlayerName', 'HPMax'];
       for (String field in wotcFields) {
         if (fields.containsKey(field)) {
           return true;
